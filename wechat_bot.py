@@ -11,29 +11,32 @@ from datetime import datetime
 # 配置日志
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(f'wechat_bot_{datetime.now().strftime("%Y%m%d")}.log', encoding='utf-8'),
-        logging.StreamHandler()
-    ]
+        logging.FileHandler(
+            f'wechat_bot_{datetime.now().strftime("%Y%m%d")}.log', encoding="utf-8"
+        ),
+        logging.StreamHandler(),
+    ],
 )
+
 
 class WeChatBot:
     def __init__(self):
         # 初始化重试配置
         self.retry_count = 3
         self.retry_interval = 5
-        
+
         # 初始化微信
         self.initialize_wechat()
-        
+
         # 基础配置
         self.bot_name = "测试AI机器人"  # 机器人名称
         self.target = "AI研究小分队"  # 目标群名
         self.use_dify = True  # 是否使用 Dify API
 
-        self.dify_api_key = "sk-ab4930dd6cc943e4a5d697ad128c93b0"  
-        self.dify_api_url = "https://api.deepseek.com"  
+        self.dify_api_key = "sk-ab4930dd6cc943e4a5d697ad128c93b0"
+        self.dify_api_url = "https://api.deepseek.com"
 
     def initialize_wechat(self):
         """初始化微信，包含重试机制"""
@@ -43,7 +46,9 @@ class WeChatBot:
                 logging.info("微信初始化成功")
                 return
             except Exception as e:
-                logging.error(f"微信初始化失败 (尝试 {attempt + 1}/{self.retry_count}): {str(e)}")
+                logging.error(
+                    f"微信初始化失败 (尝试 {attempt + 1}/{self.retry_count}): {str(e)}"
+                )
                 if attempt < self.retry_count - 1:
                     time.sleep(self.retry_interval)
                 else:
@@ -53,27 +58,26 @@ class WeChatBot:
         """调用Dify API，包含重试机制"""
         headers = {
             "Authorization": f"Bearer {self.dify_api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
         data = {
             "inputs": {},
             "query": prompt,
             "response_mode": "blocking",
             "conversation_id": "",
-            "user": "abc-123"
+            "user": "abc-123",
         }
         for attempt in range(self.retry_count):
             try:
                 response = requests.post(
-                    self.dify_api_url,
-                    headers=headers,
-                    json=data,
-                    timeout=100
+                    self.dify_api_url, headers=headers, json=data, timeout=100
                 )
                 if response.status_code == 200:
-                    return response.json()['answer']
+                    return response.json()["answer"]
             except Exception as e:
-                logging.error(f"API调用出错 (尝试 {attempt + 1}/{self.retry_count}): {str(e)}")
+                logging.error(
+                    f"API调用出错 (尝试 {attempt + 1}/{self.retry_count}): {str(e)}"
+                )
                 if attempt < self.retry_count - 1:
                     time.sleep(self.retry_interval)
         return "抱歉，当前系统繁忙，请稍后再试。"
@@ -84,7 +88,9 @@ class WeChatBot:
             try:
                 return self.wx.GetLastMessage
             except Exception as e:
-                logging.error(f"获取消息失败 (尝试 {attempt + 1}/{self.retry_count}): {str(e)}")
+                logging.error(
+                    f"获取消息失败 (尝试 {attempt + 1}/{self.retry_count}): {str(e)}"
+                )
                 if attempt < self.retry_count - 1:
                     time.sleep(self.retry_interval)
         return None
