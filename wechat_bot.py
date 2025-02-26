@@ -32,11 +32,12 @@ class WeChatBot:
 
         # 基础配置
         self.bot_name = "测试AI机器人"  # 机器人名称
-        self.target = "AI研究小分队"  # 目标群名
+        # self.target = "AI研究小分队"  # 目标群名
+        self.target = "墨七"  # 目标群名
         self.use_dify = True  # 是否使用 Dify API
 
-        self.dify_api_key = "sk-ab4930dd6cc943e4a5d697ad128c93b0"
-        self.dify_api_url = "https://api.deepseek.com"
+        self.dify_api_key = ""
+        self.dify_api_url = ""
 
     def initialize_wechat(self):
         """初始化微信，包含重试机制"""
@@ -60,6 +61,8 @@ class WeChatBot:
             "Authorization": f"Bearer {self.dify_api_key}",
             "Content-Type": "application/json",
         }
+
+        print("问题内容111", prompt)
         data = {
             "inputs": {},
             "query": prompt,
@@ -159,16 +162,13 @@ class WeChatBot:
                         continue
                     content = msg_data.get("content", "")
                     if self.is_mentioned(content):
-                        self.send_message(self.target, "1234")
-                        # question = self.extract_question(content)
-                        # if question:
-                        #     response = self.call_dify_api(question)
-                        #     formatted_response = self.format_response(
-                        #         msg_data.get("name"),
-                        #         question,
-                        #         response
-                        #     )
-                        #     self.send_message(self.target, formatted_response)
+                        question = self.extract_question(content)
+                        if question:
+                            response = self.call_dify_api(question)
+                            formatted_response = self.format_response(
+                                msg_data.get("name"), question, response
+                            )
+                            self.send_message(self.target, formatted_response)
                 time.sleep(1)
             except Exception as e:
                 logging.error(f"监听消息时出错: {str(e)}")
