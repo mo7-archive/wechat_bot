@@ -7,6 +7,7 @@ import logging
 import pyperclip
 from pywinauto import keyboard
 from datetime import datetime
+from openai import OpenAI
 
 # 配置日志
 logging.basicConfig(
@@ -32,12 +33,12 @@ class WeChatBot:
 
         # 基础配置
         self.bot_name = "测试AI机器人"  # 机器人名称
-        # self.target = "AI研究小分队"  # 目标群名
-        self.target = "墨七"  # 目标群名
+        self.target = "AI研究小分队"  # 目标群名
+        # self.target = "墨七"  # 目标群名
         self.use_dify = True  # 是否使用 Dify API
 
-        self.dify_api_key = ""
-        self.dify_api_url = ""
+        self.dify_api_key = "sk-/BP7Ouh4WX9zxNIciwaF0XBgIrdEqSa0jUVBUQSxSX0="
+        self.dify_api_url = "https://api.wisediag.com/v1"
 
     def initialize_wechat(self):
         """初始化微信，包含重试机制"""
@@ -57,33 +58,25 @@ class WeChatBot:
 
     def call_dify_api(self, prompt):
         """调用Dify API，包含重试机制"""
-        headers = {
-            "Authorization": f"Bearer {self.dify_api_key}",
-            "Content-Type": "application/json",
-        }
+        client = OpenAI(
+            api_key=self.dify_api_key,  # 请填写您自己的APIKey
+            base_url=self.dify_api_url,
+        )
+        response = client.chat.completions.create(
+            model="zzkj",  # # 填写需要调用的模型名称
+            messages=[{"role": "user", "content": prompt}],
+        )
 
-        print("问题内容111", prompt)
-        data = {
-            "inputs": {},
-            "query": prompt,
-            "response_mode": "blocking",
-            "conversation_id": "",
-            "user": "abc-123",
-        }
-        for attempt in range(self.retry_count):
-            try:
-                response = requests.post(
-                    self.dify_api_url, headers=headers, json=data, timeout=100
-                )
-                if response.status_code == 200:
-                    return response.json()["answer"]
-            except Exception as e:
-                logging.error(
-                    f"API调用出错 (尝试 {attempt + 1}/{self.retry_count}): {str(e)}"
-                )
-                if attempt < self.retry_count - 1:
-                    time.sleep(self.retry_interval)
-        return "抱歉，当前系统繁忙，请稍后再试。"
+        if response.choices:
+            msg = response.choices[0].message
+            content = msg.content
+            findStr = "杭州智诊科技有限公司"
+            if findStr in content:
+                content = content.replace(findStr, "小犀牛健康科技有限公司")
+
+            return content
+        else:
+            return "抱歉，当前系统繁忙，请稍后再试。"
 
     def get_last_message(self):
         """获取最新消息，包含重试机制"""
