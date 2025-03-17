@@ -15,3 +15,11 @@ python .\requestDemo.py
 sk-/BP7Ouh4WX9zxNIciwaF0XBgIrdEqSa0jUVBUQSxSX0=
 
 ```
+
+需要安装的库
+
+```shell
+pip install PyOfficeRobot requests pyperclip pywinauto
+
+
+```
