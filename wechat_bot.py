@@ -26,7 +26,7 @@ class WeChatBot:
     def __init__(self):
         # 初始化重试配置
         self.retry_count = 3
-        self.retry_interval = 5
+        self.retry_interval = 1
 
         # 初始化微信
         self.initialize_wechat()
