@@ -32,8 +32,10 @@ class WeChatBot:
         self.initialize_wechat()
 
         # 基础配置
-        self.bot_name = "小犀牛健康咨询师"  # 机器人名称
-        self.target = "AI研究小分队"  # 目标群名
+        # self.bot_name = "小犀牛健康咨询师"  # 机器人名称
+        self.bot_name = "问诊机器人测试版"  # 机器人名称
+        # self.target = "AI研究小分队"  # 目标群名
+        self.target = "问诊机器人测试群"  # 目标群名
         # self.target = "墨七"  # 目标群名
         self.use_dify = True  # 是否使用 Dify API
 
